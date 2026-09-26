@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deutsch Lerne - জার্মান ভাষা শিক্ষা ও নার্সিং অ্যাপ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --nursing: #059669;
+      --ai-purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; }
+
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white; padding: 24px 16px; text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 6px; }
+    header p { font-size: 0.95rem; opacity: 0.9; }
+
+    .nav-container {
+      display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+      padding: 16px; background: white; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-btn {
+      border: 1px solid var(--border); background: #f1f5f9; color: var(--text);
+      padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600;
+      transition: all 0.2s; font-size: 0.95rem;
+    }
+    .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .nav-btn.nursing.active { background: var(--nursing); border-color: var(--nursing); }
+    .nav-btn.ai.active { background: var(--ai-purple); border-color: var(--ai-purple); }
+
+    .main-content { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+
+    /* Search & Filter */
+    .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-bar {
+      flex: 1; min-width: 200px; padding: 10px 16px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 1rem; outline: none;
+    }
+    .category-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; }
+    .pill {
+      background: #e2e8f0; padding: 6px 14px; border-radius: 16px; font-size: 0.85rem;
+      white-space: nowrap; cursor: pointer; border: none; font-weight: 500;
+    }
+    .pill.active { background: #334155; color: white; }
+
+    /* Word Cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); position: relative;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-2px); }
+    .word-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .german-word { font-size: 1.3rem; font-weight: 700; color: #1e293b; }
+    .bengali-meaning { font-size: 1.1rem; color: #0284c7; font-weight: 600; margin-bottom: 12px; }
+    .audio-btn {
+      background: #eff6ff; border: none; color: var(--primary); width: 34px; height: 34px;
+      border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .sentence-box { background: #f8fafc; padding: 10px; border-left: 3px solid var(--primary); border-radius: 4px; }
+    .sentence-de { font-size: 0.95rem; font-weight: 500; color: #334155; margin-bottom: 4px; }
+    .sentence-bn { font-size: 0.88rem; color: var(--text-muted); }
+    .category-tag { font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+    /* Gemini AI Chat View */
+    .ai-view { display: none; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .api-key-box { margin-bottom: 16px; padding: 12px; background: #f3e8ff; border-radius: 8px; }
+    .api-key-box input { width: 100%; padding: 8px; margin-top: 6px; border: 1px solid #c084fc; border-radius: 6px; }
+    .chat-box { height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { padding: 10px 14px; border-radius: 8px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
+    .user-msg { background: #dbeafe; align-self: flex-end; }
+    .ai-msg { background: #f3e8ff; align-self: flex-start; }
+    .chat-input-area { display: flex; gap: 8px; }
+    .chat-input-area input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+    .send-btn { background: var(--ai-purple); color: white; border: none; padding: 0 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+    .quick-prompts { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .qp-btn { font-size: 0.8rem; background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; padding: 4px 10px; border-radius: 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Deutsch Lerne - জার্মান শিক্ষা</h1>
+    <p>A1 - B1 শব্দকোষ • নার্সিং স্পেশাল • ফ্রি এআই অ্যাসিস্ট্যান্ট</p>
+  </header>
+
+  <!-- Navigation -->
+  <div class="nav-container">
+    <button class="nav-btn active" onclick="switchLevel('A1')">Level A1</button>
+    <button class="nav-btn" onclick="switchLevel('A2')">Level A2</button>
+    <button class="nav-btn" onclick="switchLevel('B1')">Level B1</button>
+    <button class="nav-btn nursing" onclick="switchLevel('Nursing')">🩺 নার্সিং স্পেশাল</button>
+    <button class="nav-btn ai" onclick="switchLevel('AI')">🤖 Gemini AI</button>
+  </div>
+
+  <div class="main-content">
+    
+    <!-- Controls (Search & Category) -->
+    <div id="word-view-controls">
+      <div class="controls">
+        <input type="text" id="searchInput" class="search-bar" placeholder="শব্দ বা অর্থ দিয়ে খুঁজুন..." oninput="filterWords()">
+      </div>
+      <div class="category-pills" id="categoryPills"></div>
+    </div>
+
+    <!-- Word Grid -->
+    <div class="grid" id="wordGrid"></div>
+
+    <!-- Gemini AI Section -->
+    <div class="ai-view" id="aiSection">
+      <h2>🤖 Gemini AI জার্মান ভাষা গৃহশিক্ষক</h2>
+      <p style="font-size:0.9rem; color:#64748b; margin-bottom:12px;">যেকোনো ব্যাকরণ প্রশ্ন, অনুবাদ বা নার্সিং প্র্যাকটিসের জন্য প্রশ্ন করুন।</p>
+      
+      <div class="api-key-box">
+        <label for="apiKey">🔑 আপনার Gemini API Key বসান (ফ্রি):</label>
+        <input type="password" id="apiKey" placeholder="Google AI Studio থেকে পাওয়া API Key এখানে দিন..." onchange="saveApiKey()">
+        <small style="color:#6b21a8;">aistudio.google.com থেকে ফ্রিতে API Key নিতে পারবেন। এটি আপনার ব্রাউজারে সুরক্ষিত থাকবে।</small>
+      </div>
+
+      <div class="chat-box" id="chatBox">
+        <div class="chat-msg ai-msg">Hallo! আমি আপনার জার্মান ভাষা শেখার সহকারী। যেকোনো প্রশ্ন করতে পারেন বা জার্মানে বাক্য লিখে পরীক্ষা করিয়ে নিতে পারেন।</div>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="জার্মানে কিছু লিখুন বা প্রশ্ন করুন..." onkeypress="if(event.key==='Enter') sendGeminiMessage()">
+        <button class="send-btn" onclick="sendGeminiMessage()">পাঠান</button>
+      </div>
+
+      <div class="quick-prompts">
+        <button class="qp-btn" onclick="setPrompt('নার্সিংয়ের ক্ষেত্রে রোগীর রক্তচাপ মাপার সময় জার্মানে কী কথা বলতে হয়?')">🩺 রক্তচাপ ডায়ালগ</button>
+        <button class="qp-btn" onclick="setPrompt('Ich bin krank - এই বাক্যের ব্যাকরণ বুঝিয়ে দাও।')">📘 ব্যাকরণ সাহায্য</button>
+        <button class="qp-btn" onclick="setPrompt('আমার সাথে রোগীর ভূমিকায় একটি ছোট জার্মান ডায়ালগ প্র্যাকটিস করো।')">🗣️ ডায়ালগ প্র্যাকটিস</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Vocabulary Database
+    const vocabData = [
+      // A1 Level
+      { level: 'A1', category: 'Begrüßung (শুভেচ্ছা)', word: 'Hallo', meaning: 'হ্যালো / ওহে', sentence: 'Hallo, wie geht es dir?', sentence_bn: 'হ্যালো, তুমি কেমন আছো?' },
+      { level: 'A1', category: 'Begrüßung (শুভেচ্ছা)', word: 'Guten Tag', meaning: 'শুভ দিন / শুভ অপরাহ্ন', sentence: 'Guten Tag, Herr Müller!', sentence_bn: 'শুভ দিন, জনাব মুলার!' },
+      { level: 'A1', category: 'Alltag (দৈনন্দিন)', word: 'trinken', meaning: 'পান করা', sentence: 'Ich trinke jeden Tag Wasser.', sentence_bn: 'আমি প্রতিদিন পানি পান করি।' },
+      { level: 'A1', category: 'Essen (খাবার)', word: 'das Brot', meaning: 'রুটি', sentence: 'Das Brot schmeckt sehr gut.', sentence_bn: 'রুটিটি খেতে খুবই চমৎকার।' },
+      
+      // A2 Level
+      { level: 'A2', category: 'Arbeit (কাজ)', word: 'der Beruf', meaning: 'পেশা', sentence: 'Was ist Ihr Beruf von Beruf?', sentence_bn: 'আপনার পেশা কী?' },
+      { level: 'A2', category: 'Gesundheit (স্বাস্থ্য)', word: 'der Arzt', meaning: 'ডাক্তার', sentence: 'Ich muss heute zum Arzt gehen.', sentence_bn: 'আমাকে আজ ডাক্তারের কাছে যেতে হবে।' },
+      { level: 'A2', category: 'Reise (ভ্রমণ)', word: 'der Bahnhof', meaning: 'রেল স্টেশন', sentence: 'Wo ist der nächste Bahnhof?', sentence_bn: 'নিকটতম স্টেশনটি কোথায়?' },
+
+      // B1 Level
+      { level: 'B1', category: 'Ausbildung (শিক্ষা)', word: 'die Erfahrung', meaning: 'অভিজ্ঞতা', sentence: 'Ich habe viel Erfahrung in der Pflege.', sentence_bn: 'নার্সিং/সেবায় আমার অনেক অভিজ্ঞতা আছে।' },
+      { level: 'B1', category: 'Umwelt (পরিবেশ)', word: 'die Verantwortung', meaning: 'দায়িত্ব', sentence: 'Das ist eine große Verantwortung.', sentence_bn: 'এটি একটি বড় দায়িত্ব।' },
+
+      // Nursing Sector
+      { level: 'Nursing', category: 'Krankenhaus (হাসপাতাল)', word: 'die Krankenschwester', meaning: 'নার্স (মহিলা)', sentence: 'Die Krankenschwester hilft dem Patienten.', sentence_bn: 'নার্স রোগীকে সাহায্য করছেন।' },
+      { level: 'Nursing', category: 'Krankenhaus (হাসপাতাল)', word: 'der Patient', meaning: 'রোগী', sentence: 'Der Patient braucht Ruhe.', sentence_bn: 'রোগীর বিশ্রাম প্রয়োজন।' },
+      { level: 'Nursing', category: 'Medizin (চিকিৎসা)', word: 'die Spritze', meaning: 'ইনজেকশন', sentence: 'Ich gebe Ihnen jetzt eine Spritze.', sentence_bn: 'আমি এখন আপনাকে একটি ইনজেকশন দিচ্ছি।' },
+      { level: 'Nursing', category: 'Symptome (উপসর্গ)', word: 'die Schmerzen (Pl.)', meaning: 'ব্যথা/বেদনা', sentence: 'Haben Sie hier Schmerzen?', sentence_bn: 'আপনার কি এখানে ব্যথা করছে?' },
+      { level: 'Nursing', category: 'Dialoge (কথোপকথন)', word: 'der Blutdruck', meaning: 'রক্তচাপ', sentence: 'Ich möchte Ihren Blutdruck messen.', sentence_bn: 'আমি আপনার রক্তচাপ মাপতে চাই।' }
+    ];
+
+    let currentLevel = 'A1';
+    let currentCategory = 'All';
+
+    // Initialize App
+    window.onload = () => {
+      const savedKey = localStorage.getItem('gemini_api_key');
+      if(savedKey) document.getElementById('apiKey').value = savedKey;
+      switchLevel('A1');
+    };
+
+    function switchLevel(level) {
+      currentLevel = level;
+      currentCategory = 'All';
+
+      // Navigation Active State
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if(level === 'AI') {
+        document.getElementById('word-view-controls').style.display = 'none';
+        document.getElementById('wordGrid').style.display = 'none';
+        document.getElementById('aiSection').style.display = 'block';
+      } else {
+        document.getElementById('word-view-controls').style.display = 'block';
+        document.getElementById('wordGrid').style.display = 'grid';
+        document.getElementById('aiSection').style.display = 'none';
+        renderCategories();
+        filterWords();
+      }
+    }
+
+    function renderCategories() {
+      const pillsContainer = document.getElementById('categoryPills');
+      pillsContainer.innerHTML = '';
+
+      const filtered = vocabData.filter(item => item.level === currentLevel);
+      const categories = ['All', ...new Set(filtered.map(i => i.category))];
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `pill ${cat === currentCategory ? 'active' : ''}`;
+        btn.innerText = cat === 'All' ? 'সব ক্যাটাগরি' : cat;
+        btn.onclick = () => {
+          currentCategory = cat;
+          renderCategories();
+          filterWords();
+        };
+        pillsContainer.appendChild(btn);
+      });
+    }
+
+    function filterWords() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const grid = document.getElementById('wordGrid');
+      grid.innerHTML = '';
+
+      const list = vocabData.filter(item => {
+        const matchLevel = item.level === currentLevel;
+        const matchCategory = currentCategory === 'All' || item.category === currentCategory;
+        const matchSearch = item.word.toLowerCase().includes(search) || item.meaning.includes(search);
+        return matchLevel && matchCategory && matchSearch;
+      });
+
+      if(list.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding:20px;">কোনো শব্দ পাওয়া যায়নি।</p>';
+        return;
+      }
+
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="word-header">
+            <span class="german-word">${item.word}</span>
+            <button class="audio-btn" onclick="speakGerman('${item.word.replace(/'/g, "\\'")}')" title="উচ্চারণ শুনুন">🔊</button>
+          </div>
+          <div class="bengali-meaning">${item.meaning}</div>
+          <div class="sentence-box">
+            <div class="sentence-de">${item.sentence}</div>
+            <div class="sentence-bn">${item.sentence_bn}</div>
+          </div>
+          <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span class="category-tag">${item.category}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Text To Speech
+    function speakGerman(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'de-DE';
+        utterance.rate = 0.85; // Slightly slower for clear learning
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert('আপনার ব্রাউজারে টেক্সট-টু-স্পিচ সমর্থিত নয়।');
+      }
+    }
+
+    // Gemini API
+    function saveApiKey() {
+      const key = document.getElementById('apiKey').value;
+      localStorage.setItem('gemini_api_key', key);
+    }
+
+    function setPrompt(txt) {
+      document.getElementById('chatInput').value = txt;
+      sendGeminiMessage();
+    }
+
+    async function sendGeminiMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      const apiKey = localStorage.getItem('gemini_api_key');
+
+      if (!text) return;
+      if (!apiKey) {
+        alert('অনুগ্রহ করে আগে আপনার Gemini API Key টি দিন।');
+        return;
+      }
+
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML += `<div class="chat-msg user-msg">${text}</div>`;
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'chat-msg ai-msg';
+      loadingDiv.innerText = 'চিন্তা করছে...';
+      chatBox.appendChild(loadingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are a helpful German language tutor and Nursing healthcare assistant for a Bengali student. Answer in clear Bengali. User question: ${text}`
+              }]
+            }]
+          })
+        });
+
+        const data = await response.json();
+        const reply = data.candidates[0].content.parts[0].text;
+        loadingDiv.innerText = reply;
+      } catch (err) {
+        loadingDiv.innerText = '❌ কোনো সমস্যা হয়েছে! অনুগ্রহ করে API Key সঠিক কিনা পরীক্ষা করুন।';
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
